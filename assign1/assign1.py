@@ -1,12 +1,12 @@
 import time
 import argparse
 import textwrap
+import matplotlib.pyplot as plt
 
 # todo
-# make the frequencies prettier and add each letter
 # the program should have an option to display a histogram of the frequences
 # [optional] the program should have an option to skip the parts of the text
-#            that do not pertain to the book (e.g., preamble and license)
+#  that do not pertain to the book (e.g., preamble and license)
 # think of more book stats
 
 parser = argparse.ArgumentParser(
@@ -16,7 +16,7 @@ parser = argparse.ArgumentParser(
                     ! This is a Very Cool Letter Counter !
                     .₊ ⊹ ˖ .. ݁₊ ⊹ ˖ . . ݁₊ ⊹ ˖ . . ݁₊ ⊹ ˖  ݁₊.
                     This is the program I made for Assignment 1 of the UniPi CMEPDA course.
-                    You can input a book as a .txt file from command line when executing it. 
+                    You input a book as a .txt file from command line when executing it. 
                     The program can do some cool stuff with it, such as:
                     - Computing the relative frequence of each letter of the alphabet 
                       (without distinguishing between lower and upper case, accents included!) [default]
@@ -30,7 +30,8 @@ parser = argparse.ArgumentParser(
                     epilog='Text at the bottom of help')
 parser.add_argument('filename', help='name of the file to process')
 parser.add_argument('--skips', action='store_true',  help='allows skipping the parts of the text not pertaining to the book')
-parser.add_argument('--histo', action='store_true',  help='displays a histogram of the frequencies')
+parser.add_argument('--asciiplot', action='store_true',  help='displays a histogram of the frequencies in ASCII')
+parser.add_argument('--mplplot', action='store_true',  help='displays a histogram of the frequencies with matplotlib')
 parser.add_argument('--totc', action='store_true',  help='displays the total number of characters')
 parser.add_argument('--totw', action='store_true',  help='displays the total number of words')
 parser.add_argument('--totl', action='store_true',  help='displays the total number of lines')
@@ -38,7 +39,7 @@ args = parser.parse_args()
 fname = args.filename
 
 EachCount = [0] * 26 ## could be np.zeroes(26) if importing numpy, but seems superfluous
-letters = 'abcdefghijklmnopqrstuvwxyz' ## sstring that will be cycled though with the l variable later
+letters = 'abcdefghijklmnopqrstuvwxyz' ## string that will be cycled though with the l variable later
 lcount = 0 ## contains the total number of each letter which is counted in the cycle later
 
 a = {'a','à','á','â'} ## yay for accented letters!
@@ -72,8 +73,16 @@ try:
         EachFrequence = [x * 100 / TotCount for x in EachCount] ## again there's a correspondence w the alphabet
                                                                 ##but now there's the frequency, not the plain number
         EFNice = [f'{x:.2f}%' for x in EachFrequence]   ## default formatting has tons of ugly decimals, this makes it cleaner
-        print(*EFNice, sep=', ')
-        
+        print('The relative frequency of each letter is:')
+        for l, value in zip(letters,EFNice):
+                print(l.capitalize(), value)
+
+        if args.asciiplot:
+            print('\n\n')
+            print("Here's an ASCII plot of the relative frequencies:")
+            for l, value in zip(letters,EachFrequence):
+                print(l.capitalize(), '•'*int(value*10))
+
     with open(fname, 'r', encoding='utf-8') as fhandle: ## the if doesn't work without specifying the with ... again
         if args.totl:
             TotLines = 0 ## initializing the line count to 0
