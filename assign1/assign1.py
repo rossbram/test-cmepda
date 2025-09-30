@@ -2,6 +2,14 @@ import time
 import argparse
 import textwrap
 
+# todo
+# the program should have a --help option summarizing the usage
+# the program should have an option to display a histogram of the frequences
+# [optional] the program should have an option to skip the parts of the text
+#  that do not pertain to the book (e.g., preamble and license)
+# [optional] the program should have an option to print out the basic book
+#  stats (number of words, number of lines, etc.)
+
 parser = argparse.ArgumentParser(
                     prog='VeryCoolLetterCounter',
                     formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -21,24 +29,25 @@ parser = argparse.ArgumentParser(
                     .₊ ⊹ ˖ .. ݁₊ ⊹ ˖ . . ݁₊ ⊹ ˖ . . ݁₊ ⊹ ˖  ݁₊.
                     '''),
                     epilog='Text at the bottom of help')
-parser.add_argument('--skips', help='allows skipping the parts of the text not pertaining to the book')
-parser.add_argument('--histo', help='displays a histogram of the frequencies')
-parser.add_argument('--totc', help='displays the total number of characters')
-parser.add_argument('--totw', help='displays the total number of words')
-parser.add_argument('--totl', help='displays the total number of lines')
+parser.add_argument('filename', help='name of the file to process')
+parser.add_argument('--skips', action='store_true',  help='allows skipping the parts of the text not pertaining to the book')
+parser.add_argument('--histo', action='store_true',  help='displays a histogram of the frequencies')
+parser.add_argument('--totc', action='store_true',  help='displays the total number of characters')
+parser.add_argument('--totw', action='store_true',  help='displays the total number of words')
+parser.add_argument('--totl', action='store_true',  help='displays the total number of lines')
 args = parser.parse_args()
-
+fname = args.filename
 
 EachCount = [0] * 26 ## Altrimenti, importando numpy, np.zeroes(26)
 letters = 'abcdefghijklmnopqrstuvwxyz'
 lcount = 0
+
 a = {'a','à','á','â'}
 e = {'e','è','é','ê'}
 i = {'i','î','ì','í'}
 o = {'o','ô','ò','ó'}
 u = {'u','û','ú','ù'}
 
-fname = input('Enter your file name: ')
 start = time.time()
 try:
     with open(fname, 'r', encoding='utf-8') as fhandle:
@@ -58,12 +67,21 @@ try:
             else:
                 lcount = sum(1 for ch in text if ch == l)
             EachCount[letters.find(l)] = lcount
-    TotCount = sum(EachCount)
-    EachFrequence = [x * 100 / TotCount for x in EachCount]
-    EFNice = [f'{x:.2f}%' for x in EachFrequence]
-    end = time.time() - start
-    print(*EFNice, sep=', ')
-    print('The total number of letters is: ', TotCount)
-    print('The elapsed time is: ', f'{end:.2f}', 'seconds')
+        TotCount = sum(EachCount)
+        EachFrequence = [x * 100 / TotCount for x in EachCount]
+        EFNice = [f'{x:.2f}%' for x in EachFrequence]
+        end = time.time() - start
+        print(*EFNice, sep=', ')
+        print('The elapsed time is: ', f'{end:.2f}', 'seconds')
+        
+    with open(fname, 'r', encoding='utf-8') as fhandle:
+        if args.totl:
+            TotLines = 0
+            for line in fhandle:
+                NonEmptyLine = line.strip()
+                if NonEmptyLine: 
+                    TotLines+=1
+            print('The total number of lines is: ', TotLines)
+
 except FileNotFoundError:
-    print('Could not find', fname, '\b.')
+    print('Could not find', fname, '\b.')    
