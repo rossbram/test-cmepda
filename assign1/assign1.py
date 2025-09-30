@@ -2,12 +2,15 @@ import time
 import argparse
 import textwrap
 import matplotlib.pyplot as plt
+from matplotlib import colormaps
 
 # todo
 # the program should have an option to display a histogram of the frequences
 # [optional] the program should have an option to skip the parts of the text
-#  that do not pertain to the book (e.g., preamble and license)
+#            that do not pertain to the book (e.g., preamble and license)
 # think of more book stats
+# add printing out book details, such as title, author, translator, release date, language and credits.
+# change epilog help
 
 parser = argparse.ArgumentParser(
                     prog='VeryCoolLetterCounter',
@@ -20,11 +23,13 @@ parser = argparse.ArgumentParser(
                     The program can do some cool stuff with it, such as:
                     - Computing the relative frequence of each letter of the alphabet 
                       (without distinguishing between lower and upper case, accents included!) [default]
-                    - Displaying a histogram of such frequencies
+                    - Displaying a histogram of such frequencies (in ASCII or through matplotlib)
                     - Skipping the parts of the text not pertaining to the book, such as the
                       preamble or the license
                     - Printing out some interesting stats, such as the total number of
                       characters, total number of words, total number of lines.
+                    - (! If the .txt file is from Project Gutemberg) Printing out book details,
+                      such as title, author, translator, release date, language and credits.
                     .₊ ⊹ ˖ .. ݁₊ ⊹ ˖ . . ݁₊ ⊹ ˖ . . ݁₊ ⊹ ˖  ݁₊.
                     '''),
                     epilog='Text at the bottom of help')
@@ -71,17 +76,11 @@ try:
                                                 ## this line adds the number of instances to the corresponding position in the array
         TotCount = sum(EachCount)   ## sums all the instances, so contains the total no. of characters excluding punctuaction&spaces
         EachFrequence = [x * 100 / TotCount for x in EachCount] ## again there's a correspondence w the alphabet
-                                                                ##but now there's the frequency, not the plain number
+                                                                ## but now there's the frequency, not the plain number
         EFNice = [f'{x:.2f}%' for x in EachFrequence]   ## default formatting has tons of ugly decimals, this makes it cleaner
         print('The relative frequency of each letter is:')
         for l, value in zip(letters,EFNice):
                 print(l.capitalize(), value)
-
-        if args.asciiplot:
-            print('\n\n')
-            print("Here's an ASCII plot of the relative frequencies:")
-            for l, value in zip(letters,EachFrequence):
-                print(l.capitalize(), '•'*int(value*10))
 
     with open(fname, 'r', encoding='utf-8') as fhandle: ## the if doesn't work without specifying the with ... again
         if args.totl:
@@ -108,6 +107,20 @@ try:
 
     end = time.time() - start ## compares w the starting time    
     print('The elapsed time is: ', f'{end:.2f}', 'seconds')
+
+    if args.asciiplot:
+        print('\n\n')
+        print("Here's an ASCII plot of the relative frequencies:")
+        for l, value in zip(letters,EachFrequence):
+            print(l.capitalize(), '•'*int(value*10))
+            
+    if args.mplplot:
+        bins = list(range(1,27))
+        cmap = plt.cm.rainbow
+        colors = [cmap(1-x/26) for x in bins]
+        plt.bar(bins, EachFrequence, tick_label = list(letters.upper()),
+                width = 1, color = colors)
+        plt.show()
 
 except FileNotFoundError:
     print('Could not find', fname, '\b.')    
