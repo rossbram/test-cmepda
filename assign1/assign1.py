@@ -3,12 +3,11 @@ import argparse
 import textwrap
 
 # todo
-# the program should have a --help option summarizing the usage
+# make the frequencies prettier and add each letter
 # the program should have an option to display a histogram of the frequences
 # [optional] the program should have an option to skip the parts of the text
 #  that do not pertain to the book (e.g., preamble and license)
-# [optional] the program should have an option to print out the basic book
-#  stats (number of words, number of lines, etc.)
+# think of more book stats
 
 parser = argparse.ArgumentParser(
                     prog='VeryCoolLetterCounter',
@@ -72,7 +71,6 @@ try:
         EFNice = [f'{x:.2f}%' for x in EachFrequence]
         end = time.time() - start
         print(*EFNice, sep=', ')
-        print('The elapsed time is: ', f'{end:.2f}', 'seconds')
         
     with open(fname, 'r', encoding='utf-8') as fhandle:
         if args.totl:
@@ -83,5 +81,14 @@ try:
                     TotLines+=1
             print('The total number of lines is: ', TotLines)
 
+    with open(fname, 'r', encoding='utf-8') as fhandle:
+        if args.totw:
+            TotWords = 0
+            for line in fhandle:
+                ThisLineWords = len(line.split())
+                TotWords += ThisLineWords
+            print('The total number of words is: ', TotWords)
+    
+    print('The elapsed time is: ', f'{end:.2f}', 'seconds')
 except FileNotFoundError:
     print('Could not find', fname, '\b.')    
