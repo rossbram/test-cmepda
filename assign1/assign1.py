@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 from matplotlib import colormaps
 
 # todo
-# the program should have an option to display a histogram of the frequences
 # [optional] the program should have an option to skip the parts of the text
 #            that do not pertain to the book (e.g., preamble and license)
 # think of more book stats
@@ -89,7 +88,7 @@ try:
                 NonEmptyLine = line.strip() ## removes whitespaces, so the following if skips empty lines
                 if NonEmptyLine: 
                     TotLines+=1
-            print('The total number of lines is: ', TotLines)
+            print('\nThe total number of lines is:', TotLines)
 
     with open(fname, 'r', encoding='utf-8') as fhandle:
         if args.totw:
@@ -99,27 +98,26 @@ try:
                                                           ## so its len is the no of words in the line
                                                           ## not sure if the .strip() is necessary but better safe than sorry
                 TotWords += ThisLineWords
-            print('The total number of words is: ', TotWords)
+            print('\nThe total number of words is:', TotWords)
 
     with open(fname, 'r', encoding='utf-8') as fhandle:
         if args.totc:
-            print('The total number of characters is: ', TotCount)
+            print('\nThe total number of characters is:', TotCount)
 
     end = time.time() - start ## compares w the starting time    
-    print('The elapsed time is: ', f'{end:.2f}', 'seconds')
+    print('\nThe elapsed time is:', f'{end:.2f}', 'seconds')
 
     if args.asciiplot:
-        print('\n\n')
-        print("Here's an ASCII plot of the relative frequencies:")
+        print("\n\nHere's an ASCII plot of the relative frequencies:")
         for l, value in zip(letters,EachFrequence):
             print(l.capitalize(), '•'*int(value*10))
-            
+
     if args.mplplot:
         bins = list(range(1,27))
         cmap = plt.cm.rainbow
         colors = [cmap(1-x/26) for x in bins]
-        plt.bar(bins, EachFrequence, tick_label = list(letters.upper()),
-                width = 1, color = colors)
+        plt.bar(bins, EachFrequence, tick_label = list(letters.upper()), width = 1, color = colors)
+        plt.ylabel('Relative frequency (%)')
         plt.show()
 
 except FileNotFoundError:
