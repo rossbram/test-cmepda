@@ -5,10 +5,7 @@ import matplotlib.pyplot as plt
 from matplotlib import colormaps
 
 # todo
-# [optional] the program should have an option to skip the parts of the text
-#            that do not pertain to the book (e.g., preamble and license)
 # think of more book stats
-# add printing out book details, such as title, author, translator, release date, language and credits.
 # change epilog help
 
 parser = argparse.ArgumentParser(
@@ -23,11 +20,11 @@ parser = argparse.ArgumentParser(
                     - Computing the relative frequence of each letter of the alphabet 
                       (without distinguishing between lower and upper case, accents included!) [default]
                     - Displaying a histogram of such frequencies (in ASCII or through matplotlib)
-                    - Skipping the parts of the text not pertaining to the book, such as the
-                      preamble or the license
                     - Printing out some interesting stats, such as the total number of
                       characters, total number of words, total number of lines.
-                    - (! If the .txt file is from Project Gutemberg) Printing out book details,
+                    - (! If the .txt file is from Project Gutemberg) Skipping the parts of the text 
+                      not pertaining to the book, such as the preamble or the license
+                    - (! If the .txt file is from Project Gutemberg) Printing out book information,
                       such as title, author, translator, release date, language and credits.
                     .₊ ⊹ ˖ .. ݁₊ ⊹ ˖ . . ݁₊ ⊹ ˖ . . ݁₊ ⊹ ˖  ݁₊.
                     '''),
@@ -39,6 +36,7 @@ parser.add_argument('--mplplot', action='store_true',  help='displays a histogra
 parser.add_argument('--totc', action='store_true',  help='displays the total number of characters')
 parser.add_argument('--totw', action='store_true',  help='displays the total number of words')
 parser.add_argument('--totl', action='store_true',  help='displays the total number of lines')
+parser.add_argument('--info', action='store_true',  help='displays information about the book')
 args = parser.parse_args()
 fname = args.filename
 
@@ -55,7 +53,14 @@ u = {'u','û','ú','ù'}
 start = time.time() ## stores the starting time
 try:
     with open(fname, 'r', encoding='utf-8') as fhandle: ## without the encoding, the dialogue quotes break everything
-        text = fhandle.read().lower() ## reads the file as one single piece, and lowercase
+        text = ''
+        if args.skips:
+            check = False       ## checks if we've arrived at the body of the book yet
+            for line in fhandle:
+                if line.startswith('*** START OF THE PROJECT GUTENBERG EBOOK'): check = True
+                if line.startswith('*** END OF THE PROJECT GUTENBERG EBOOK'): check = False
+                if check: text += line.lower()
+        else: text = fhandle.read().lower() ## reads the file as one single piece, and lowercase
         for l in letters:
             lcount = 0
             if l == 'a': ## there's probably a cleaner way to do this but i can't quite think of it rn
@@ -77,7 +82,7 @@ try:
         EachFrequence = [x * 100 / TotCount for x in EachCount] ## again there's a correspondence w the alphabet
                                                                 ## but now there's the frequency, not the plain number
         EFNice = [f'{x:.2f}%' for x in EachFrequence]   ## default formatting has tons of ugly decimals, this makes it cleaner
-        print('The relative frequency of each letter is:')
+        print('\nThe relative frequency of each letter is:')
         for l, value in zip(letters,EFNice):
                 print(l.capitalize(), value)
 
@@ -103,6 +108,14 @@ try:
     with open(fname, 'r', encoding='utf-8') as fhandle:
         if args.totc:
             print('\nThe total number of characters is:', TotCount)
+
+    with open(fname, 'r', encoding='utf-8') as fhandle:
+        if args.info:
+            keywords = ('Title','Author','Release date','Language','Credits','Translator')
+            for line in fhandle:
+                if line.startswith(keywords):
+                    print(line)
+                if line.startswith('*** START OF THE PROJECT GUTENBERG EBOOK'): break ## would be useless to check all the lines after the start of the book as well
 
     end = time.time() - start ## compares w the starting time    
     print('\nThe elapsed time is:', f'{end:.2f}', 'seconds')
