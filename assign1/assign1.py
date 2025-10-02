@@ -89,20 +89,39 @@ try:
     with open(fname, 'r', encoding='utf-8') as fhandle: ## the if doesn't work without specifying the with ... again
         if args.totl:
             TotLines = 0 ## initializing the line count to 0
-            for line in fhandle:
-                NonEmptyLine = line.strip() ## removes whitespaces, so the following if skips empty lines
-                if NonEmptyLine: 
-                    TotLines+=1
+            if args.skips:
+                check = False       
+                for line in fhandle:
+                    if line.startswith('*** START OF THE PROJECT GUTENBERG EBOOK'): check = True
+                    if line.startswith('*** END OF THE PROJECT GUTENBERG EBOOK'): check = False
+                    if check: 
+                        NonEmptyLine = line.strip() ## removes whitespaces, so the following if skips empty lines
+                        if NonEmptyLine: 
+                            TotLines+=1
+            else:
+                for line in fhandle:
+                    NonEmptyLine = line.strip() 
+                    if NonEmptyLine: 
+                        TotLines+=1
             print('\nThe total number of lines is:', TotLines)
 
     with open(fname, 'r', encoding='utf-8') as fhandle:
         if args.totw:
             TotWords = 0 ## initializing the word count to 0
-            for line in fhandle:
-                ThisLineWords = len(line.strip().split()) ## split generates an array with each word as an element
+            if args.skips:
+                check = False       
+                for line in fhandle:
+                    if line.startswith('*** START OF THE PROJECT GUTENBERG EBOOK'): check = True
+                    if line.startswith('*** END OF THE PROJECT GUTENBERG EBOOK'): check = False
+                    if check: 
+                        ThisLineWords = len(line.strip().split()) ## split generates an array with each word as an element
                                                           ## so its len is the no of words in the line
                                                           ## not sure if the .strip() is necessary but better safe than sorry
-                TotWords += ThisLineWords
+                        TotWords += ThisLineWords
+            else:
+                for line in fhandle:
+                    ThisLineWords = len(line.strip().split()) 
+                    TotWords += ThisLineWords
             print('\nThe total number of words is:', TotWords)
 
     with open(fname, 'r', encoding='utf-8') as fhandle:
